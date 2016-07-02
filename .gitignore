@@ -1,0 +1,5 @@
+Makefile
+Makefile.in
+.deps
+teabag-amd64-linux
+*.o
