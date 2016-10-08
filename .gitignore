@@ -3,3 +3,4 @@ Makefile.in
 .deps
 *.o
 whiteboard-amd64-linux
+vgpreload_whiteboard-amd64-linux.so

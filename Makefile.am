@@ -53,4 +53,41 @@ whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LINK = \
 	$(whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS)
 endif
 
+#----------------------------------------------------------------------------
+# vgpreload_whiteboard-<platform>.so
+#----------------------------------------------------------------------------
+
+noinst_PROGRAMS += vgpreload_whiteboard-@VGCONF_ARCH_PRI@-@VGCONF_OS@.so
+if VGCONF_HAVE_PLATFORM_SEC
+noinst_PROGRAMS += vgpreload_whiteboard-@VGCONF_ARCH_SEC@-@VGCONF_OS@.so
+endif
+
+if VGCONF_OS_IS_DARWIN
+noinst_DSYMS = $(noinst_PROGRAMS)
+endif
+
+vgpreload_whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_SOURCES      = 
+vgpreload_whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_CFLAGS       = \
+	$(AM_CFLAGS_PSO_@VGCONF_PLATFORM_PRI_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_DEPENDENCIES = \
+	$(LIBREPLACEMALLOC_@VGCONF_PLATFORM_PRI_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_so_LDFLAGS      = \
+	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@) \
+	$(LIBREPLACEMALLOC_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
+
+if VGCONF_HAVE_PLATFORM_SEC
+vgpreload_whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_so_SOURCES      = 
+vgpreload_whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_so_CPPFLAGS     = \
+	$(AM_CPPFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_so_CFLAGS       = \
+	$(AM_CFLAGS_PSO_@VGCONF_PLATFORM_SEC_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_so_DEPENDENCIES = \
+	$(LIBREPLACEMALLOC_@VGCONF_PLATFORM_SEC_CAPS@)
+vgpreload_whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_so_LDFLAGS      = \
+	$(PRELOAD_LDFLAGS_@VGCONF_PLATFORM_SEC_CAPS@) \
+	$(LIBREPLACEMALLOC_LDFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
+endif
+
 
