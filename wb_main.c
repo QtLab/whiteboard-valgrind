@@ -4,12 +4,20 @@
 #include "pub_tool_basics.h"
 #include "pub_tool_tooliface.h"
 #include "pub_tool_replacemalloc.h"
+#include "pub_tool_libcprint.h"
+#include "pub_tool_vki.h"
+
+/// out ////
+static VgFile* output = NULL;
+
 
 ///////////////// mallocs ///////////////////
 
 static void* wb_malloc ( ThreadId tid, SizeT szB )
 {
-	return VG_(cli_malloc)(VG_(clo_alignment), szB);
+	void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
+	VG_(fprintf)(output, "{\"action\" : \"malloc\", \"size\" : %ull, \"addr\" : %p }\n", szB, addr);
+	return addr;
 }
 
 static void* wb___builtin_new ( ThreadId tid, SizeT szB )
@@ -60,6 +68,7 @@ static SizeT wb_malloc_usable_size ( ThreadId tid, void* p )
 ///////////////////////// inits ///////////////////////////////
 static void wb_post_clo_init(void)
 {
+	output = VG_(fopen)("/dev/stdout", VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY, VKI_S_IRUSR|VKI_S_IWUSR);
 }
 
 static
@@ -75,6 +84,7 @@ IRSB* wb_instrument ( VgCallbackClosure* closure,
 
 static void wb_fini(Int exitcode)
 {
+	VG_(fclose) (output);
 }
 
 static void wb_pre_clo_init(void)
