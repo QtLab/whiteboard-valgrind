@@ -1,5 +1,5 @@
 Makefile
 Makefile.in
 .deps
-teabag-amd64-linux
 *.o
+whiteboard-amd64-linux

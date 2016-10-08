@@ -1,56 +1,56 @@
 include $(top_srcdir)/Makefile.tool.am
 
-EXTRA_DIST = docs/tb-manual.xml
+EXTRA_DIST = docs/wb-manual.xml
 
 #----------------------------------------------------------------------------
-# teabag-<platform>
+# whiteboard-<platform>
 #----------------------------------------------------------------------------
 
-noinst_PROGRAMS  = teabag-@VGCONF_ARCH_PRI@-@VGCONF_OS@
+noinst_PROGRAMS  = whiteboard-@VGCONF_ARCH_PRI@-@VGCONF_OS@
 if VGCONF_HAVE_PLATFORM_SEC
-noinst_PROGRAMS += teabag-@VGCONF_ARCH_SEC@-@VGCONF_OS@
+noinst_PROGRAMS += whiteboard-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
-NONE_SOURCES_COMMON = tb_main.c
+NONE_SOURCES_COMMON = wb_main.c
 
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(NONE_SOURCES_COMMON)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CPPFLAGS     = \
 	$(AM_CPPFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS       = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS       = \
 	$(AM_CFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_PRI_CAPS@)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDADD        = \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_PRI_CAPS@)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS      = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS      = \
 	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_PRI_CAPS@)
-teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LINK = \
+whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LINK = \
 	$(top_builddir)/coregrind/link_tool_exe_@VGCONF_OS@ \
 	@VALT_LOAD_ADDRESS_PRI@ \
 	$(LINK) \
-	$(teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS) \
-	$(teabag_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS)
+	$(whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_CFLAGS) \
+	$(whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_LDFLAGS)
 
 if VGCONF_HAVE_PLATFORM_SEC
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_SOURCES      = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_SOURCES      = \
 	$(NONE_SOURCES_COMMON)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CPPFLAGS     = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CPPFLAGS     = \
 	$(AM_CPPFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CFLAGS       = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CFLAGS       = \
 	$(AM_CFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_DEPENDENCIES = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_DEPENDENCIES = \
 	$(TOOL_DEPENDENCIES_@VGCONF_PLATFORM_SEC_CAPS@)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDADD        = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDADD        = \
 	$(TOOL_LDADD_@VGCONF_PLATFORM_SEC_CAPS@)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS      = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS      = \
 	$(TOOL_LDFLAGS_@VGCONF_PLATFORM_SEC_CAPS@)
-teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LINK = \
+whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LINK = \
 	$(top_builddir)/coregrind/link_tool_exe_@VGCONF_OS@ \
 	@VALT_LOAD_ADDRESS_SEC@ \
 	$(LINK) \
-	$(teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CFLAGS) \
-	$(teabag_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS)
+	$(whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_CFLAGS) \
+	$(whiteboard_@VGCONF_ARCH_SEC@_@VGCONF_OS@_LDFLAGS)
 endif
 
 
