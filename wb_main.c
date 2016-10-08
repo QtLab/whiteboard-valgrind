@@ -16,18 +16,22 @@ static VgFile* output = NULL;
 static void* wb_malloc ( ThreadId tid, SizeT szB )
 {
 	void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
-	VG_(fprintf)(output, "{\"action\" : \"malloc\", \"size\" : %ull, \"addr\" : %p }\n", szB, addr);
+	VG_(fprintf)(output, "{\"action\" : \"allocation\", \"type\" : \"malloc\", \"size\" : %ull, \"addr\" : %p }\n", szB, addr);
 	return addr;
 }
 
 static void* wb___builtin_new ( ThreadId tid, SizeT szB )
 {
-	return VG_(cli_malloc)(VG_(clo_alignment), szB);
+	void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
+	VG_(fprintf)(output, "{\"action\" : \"allocation\", \"type\" : \"new\", \"size\" : %ull, \"addr\" : %p }\n", szB, addr);
+	return addr;
 }
 
 static void* wb___builtin_vec_new ( ThreadId tid, SizeT szB )
 {
-	return VG_(cli_malloc)(VG_(clo_alignment), szB);
+	void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
+	VG_(fprintf)(output, "{\"action\" : \"allocation\", \"type\" : \"new[]\", \"size\" : %ull, \"addr\" : %p }\n", szB, addr);
+	return addr;
 }
 
 static void* wb_calloc ( ThreadId tid, SizeT m, SizeT szB )
@@ -42,17 +46,20 @@ static void *wb_memalign ( ThreadId tid, SizeT alignB, SizeT szB )
 
 static void wb_free ( ThreadId tid __attribute__((unused)), void* p )
 {
-   VG_(cli_free)(p);
+	VG_(fprintf)(output, "{\"action\" : \"free\", \"type\" : \"free\", \"addr\" : %p }\n", p);
+	VG_(cli_free)(p);
 }
 
 static void wb___builtin_delete ( ThreadId tid, void* p )
 {
-   VG_(cli_free)(p);
+	VG_(fprintf)(output, "{\"action\" : \"free\", \"type\" : \"delete\", \"addr\" : %p }\n", p);
+	VG_(cli_free)(p);
 }
 
 static void wb___builtin_vec_delete ( ThreadId tid, void* p )
 {
-   VG_(cli_free)(p);
+	VG_(fprintf)(output, "{\"action\" : \"free\", \"type\" : \"delete[]\", \"addr\" : %p }\n", p);
+	VG_(cli_free)(p);
 }
 
 static void* wb_realloc ( ThreadId tid, void* p_old, SizeT new_szB )
