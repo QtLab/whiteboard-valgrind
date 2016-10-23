@@ -1,3 +1,6 @@
+// Whiteboard
+// (C) Maciej Gajewski, 2016
+
 #include "wb_alloctraces.h"
 
 #include "pub_tool_replacemalloc.h"

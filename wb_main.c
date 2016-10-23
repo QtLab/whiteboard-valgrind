@@ -2,14 +2,14 @@
 // (C) Maciej Gajewski, 2016
 
 #include "wb_alloctraces.h"
+#include "wb_instrumentation.h"
 
 #include "pub_tool_basics.h"
 #include "pub_tool_tooliface.h"
-#include "pub_tool_replacemalloc.h"
-#include "pub_tool_libcprint.h"
 #include "pub_tool_vki.h"
+//#include "pub_tool_replacemalloc.h"
+#include "pub_tool_libcprint.h"
 #include "pub_tool_libcassert.h"
-#include "pub_tool_machine.h"     // VG_(fnptr_to_fnentry)
 
 /// out ////
 VgFile* output = NULL;
@@ -38,59 +38,11 @@ static void wb_post_clo_init(void)
     }
 }
 
-static int superblock_counter = 0;
-static int imark_counter = 0;
-static int sb_enter_counter = 0;
-
-static void wb_sb_entered(void)
-{
-    sb_enter_counter ++;
-}
-
-static
-IRSB* wb_instrument ( VgCallbackClosure* closure,
-        IRSB* sbIn, // superblock (single entry, multiple exit code sequence)
-        const VexGuestLayout* layout, 
-        const VexGuestExtents* vge, // used once by lackey 
-        const VexArchInfo* archinfo_host,
-        IRType gWordTy, IRType hWordTy )
-{
-    superblock_counter ++;
-    
-    IRSB* sbOut = deepCopyIRSBExceptStmts(sbIn);
-
-    Int i = 0;
-    // Copy verbatim any IR preamble preceding the first IMark
-    while (i < sbIn->stmts_used && sbIn->stmts[i]->tag != Ist_IMark) {
-        addStmtToIRSB( sbOut, sbIn->stmts[i] );
-        i++;
-    }
-
-    // add block-enter counter just before the first IMark
-    {
-        IRDirty* di = unsafeIRDirty_0_N( 0, "wb_sb_entered", 
-                VG_(fnptr_to_fnentry)( &wb_sb_entered ),
-                mkIRExprVec_0() );
-        addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-    }
-    
-    // copy all the other statements
-    for (/* reused */; i < sbIn->stmts_used; i++) {
-        IRStmt* st = sbIn->stmts[i];
-        if (st->tag == Ist_IMark) {
-            imark_counter ++;
-        }
-        
-        addStmtToIRSB( sbOut, st );
-    }
-    
-    return sbOut;
-}
 
 static void wb_fini(Int exitcode)
 {
     VG_(fclose) (output);
-    VG_(printf)("the end, superblocks=%d, imarks=%d, sb entered=%d\n", superblock_counter, imark_counter, sb_enter_counter);
+    wb_instrument_print_stats();
 }
 
 static void wb_pre_clo_init(void)

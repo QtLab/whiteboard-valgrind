@@ -11,7 +11,7 @@ if VGCONF_HAVE_PLATFORM_SEC
 noinst_PROGRAMS += whiteboard-@VGCONF_ARCH_SEC@-@VGCONF_OS@
 endif
 
-NONE_SOURCES_COMMON = wb_main.c wb_alloctraces.c
+NONE_SOURCES_COMMON = wb_main.c wb_alloctraces.c wb_instrumentation.c
 
 whiteboard_@VGCONF_ARCH_PRI@_@VGCONF_OS@_SOURCES      = \
 	$(NONE_SOURCES_COMMON)
