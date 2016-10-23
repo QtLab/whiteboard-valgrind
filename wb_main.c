@@ -3,16 +3,18 @@
 
 #include "wb_alloctraces.h"
 #include "wb_instrumentation.h"
+#include "wb_global_state.h"
 
 #include "pub_tool_basics.h"
 #include "pub_tool_tooliface.h"
 #include "pub_tool_vki.h"
-//#include "pub_tool_replacemalloc.h"
 #include "pub_tool_libcprint.h"
 #include "pub_tool_libcassert.h"
 
+
+
 /// out ////
-VgFile* output = NULL;
+VgFile* wb_output = NULL;
 
 
 
@@ -20,19 +22,23 @@ VgFile* output = NULL;
 // this guys are called a lot!
 static void wb_new_mem_stack(Addr a, SizeT len)
 {
-    //VG_(fprintf)(output, "{\"action\" : \"new-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
+    if (wb_inside_user_code) {
+        VG_(fprintf)(wb_output, "{\"action\" : \"new-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
+    }
 }
 
 static void wb_die_mem_stack(Addr a, SizeT len)
 {
-    //VG_(fprintf)(output, "{\"action\" : \"die-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
+    if (wb_inside_user_code) {
+        VG_(fprintf)(wb_output, "{\"action\" : \"die-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
+    }
 }
 
 ///////////////////////// inits ///////////////////////////////
 static void wb_post_clo_init(void)
 {
-    output = VG_(fopen)("/dev/stdout", VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY, VKI_S_IRUSR|VKI_S_IWUSR);
-    if (output == NULL)
+    wb_output = VG_(fopen)("/dev/stdout", VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY, VKI_S_IRUSR|VKI_S_IWUSR);
+    if (wb_output == NULL)
     {
         VG_(tool_panic)("unable to open output file");
     }
@@ -41,7 +47,7 @@ static void wb_post_clo_init(void)
 
 static void wb_fini(Int exitcode)
 {
-    VG_(fclose) (output);
+    VG_(fclose) (wb_output);
     wb_instrument_print_stats();
 }
 
