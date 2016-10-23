@@ -6,7 +6,40 @@
 
 #include "pub_tool_replacemalloc.h"
 #include "pub_tool_libcprint.h"
+#include "pub_tool_libcassert.h"
 
+
+/////////////////////////////// stack ///////////////////////////
+// this guys are called a lot!
+
+static Addr old_SP = 0;
+static Addr new_SP = 0;
+
+void wb_new_mem_stack(Addr a, SizeT len)
+{
+    if (wb_inside_user_code) {
+        if (!old_SP) {
+            old_SP = a + len;
+            VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %p }\n", (void*)old_SP);
+        }
+        new_SP = a;
+     }
+}
+
+void wb_die_mem_stack(Addr a, SizeT len)
+{
+    if (wb_inside_user_code) {
+        new_SP = a;
+    }
+}
+
+void flush_stack(void)
+{
+    if (new_SP != old_SP) {
+        VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %p }\n", (void*)new_SP);
+    }
+    old_SP = new_SP;
+}
 
 
 ///////////////// mallocs ///////////////////

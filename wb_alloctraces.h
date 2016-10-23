@@ -2,6 +2,11 @@
 
 #include "pub_tool_basics.h"
 
+void wb_new_mem_stack(Addr a, SizeT len);
+void wb_die_mem_stack(Addr a, SizeT len);
+void flush_stack(void);
+
+
 void* wb_malloc ( ThreadId tid, SizeT szB );
 void* wb___builtin_new ( ThreadId tid, SizeT szB );
 void* wb___builtin_vec_new ( ThreadId tid, SizeT szB );

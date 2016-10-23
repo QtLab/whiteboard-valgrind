@@ -18,22 +18,6 @@ VgFile* wb_output = NULL;
 
 
 
-/////////////////////////////// stack ///////////////////////////
-// this guys are called a lot!
-static void wb_new_mem_stack(Addr a, SizeT len)
-{
-    if (wb_inside_user_code) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"new-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
-    }
-}
-
-static void wb_die_mem_stack(Addr a, SizeT len)
-{
-    if (wb_inside_user_code) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"die-stack\", \"size\" : %lu, \"addr\" : %p }\n", len, (void*)a);
-    }
-}
-
 ///////////////////////// inits ///////////////////////////////
 static void wb_post_clo_init(void)
 {

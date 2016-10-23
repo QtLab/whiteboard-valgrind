@@ -1,8 +1,10 @@
 // Whiteboard
 // (C) Maciej Gajewski, 2016
 
-#include "wb_global_state.h"
 #include "wb_instrumentation.h"
+
+#include "wb_global_state.h"
+#include "wb_alloctraces.h"
 
 #include "pub_tool_machine.h"     // VG_(fnptr_to_fnentry)
 #include "pub_tool_libcprint.h"
@@ -30,6 +32,7 @@ static struct LastLine last_line = { NULL, NULL, 0 };
 static void flush_last_line(void)
 {
     if (last_line.linenum > 0) {
+        flush_stack();
         VG_(fprintf)(wb_output, "{\"action\" : \"line-step\", \"file\" : \"%s\", \"line\" : %u, \"dir\" : \"%s\"}\n", last_line.filename, last_line.linenum, last_line.dirname);
     }
 }
