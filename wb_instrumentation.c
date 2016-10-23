@@ -18,14 +18,31 @@ static void wb_sb_entered(void)
     sb_enter_counter ++;
 }
 
-static void wb_on_function_call(Addr addr)
+static void wb_on_instruction(Addr addr)
 {
-    const HChar *fnname;
-    if (VG_(get_fnname_if_entry)(addr, &fnname)) {
-        VG_(fprintf)(output, "{\"action\" : \"function-call\", \"addr\" : %p, \"name\" : \"%s\"}\n", (void*)addr, fnname);
-    } else {
-        VG_(fprintf)(output, "{\"action\" : \"function-call\", \"addr\" : %p}\n", (void*)addr);
+
+    Vg_FnNameKind kind =  VG_(get_fnname_kind_from_IP)(addr);
+    if (kind == Vg_FnNameMain || kind == Vg_FnNameNormal) {
+        const HChar* dirname;
+        const HChar* filename;
+        UInt linenum;
+  
+        if (VG_(get_filename_linenum)(addr, &filename, &dirname, &linenum)) {
+        
+            const HChar *fnname = "";
+            if (VG_(get_fnname)(addr, &fnname)) {
+                // TODO
+            }
+            
+            VG_(fprintf)(output, "{\"action\" : \"line-step\", \"addr\" : %p,\"function\" : \"%s\",  \"file\" : \"%s\", \"line\" : %u, \"dir\" : \"%s\"}\n", (void*)addr, fnname, filename, linenum, dirname);
+        }
     }
+    
+//     if (VG_(get_fnname_if_entry)(addr, &fnname)) {
+//         VG_(fprintf)(output, "{\"action\" : \"function-call\", \"addr\" : %p, \"name\" : \"%s\"}\n", (void*)addr, fnname);
+//     } else {
+//         VG_(fprintf)(output, "{\"action\" : \"function-call\", \"addr\" : %p}\n", (void*)addr);
+//     }
 }
 
 IRSB* wb_instrument ( VgCallbackClosure* closure,
@@ -60,16 +77,12 @@ IRSB* wb_instrument ( VgCallbackClosure* closure,
         if (st->tag == Ist_IMark) {
             imark_counter ++;
 
-            // detect function calls
-            const HChar *fnname;
-            if (VG_(get_fnname_if_entry)(st->Ist.IMark.addr, &fnname)) {
-                // TODO pass the param or smthn
-                IRDirty* di = unsafeIRDirty_0_N(
-                        0, "wb_on_function_call", 
-                        VG_(fnptr_to_fnentry)( &wb_on_function_call ), 
-                        mkIRExprVec_1(mkIRExpr_HWord( st->Ist.IMark.addr )) );
-                addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-            }
+            // instrument every IMark
+            IRDirty* di = unsafeIRDirty_0_N(
+                    0, "wb_on_instruction", 
+                    VG_(fnptr_to_fnentry)( &wb_on_instruction ), 
+                    mkIRExprVec_1(mkIRExpr_HWord( st->Ist.IMark.addr )) );
+            addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
             
         }
         
