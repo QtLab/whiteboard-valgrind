@@ -19,48 +19,77 @@ Bool wb_inside_user_code = False;
 
 // Mem access tracking ////////////////////
 
-struct MemOp {
-    Addr addr;
-    SizeT size;
+const char* TYPES[] = {
+      "INVALID",
+      "I1",
+      "I8",
+      "I16",
+      "I32",
+      "I64",
+      "I128",
+      "F16",
+      "F32",
+      "F64",
+      "D32",
+      "D64",
+      "D128",
+      "F128",
+      "V128",
+      "V256"
 };
 
-static struct MemOp last_write = {0, 0};
-
-static void flush_mem_ops(void)
+static void wb_on_load(Addr addr, SizeT size, SizeT type)
 {
-    if (last_write.size > 0 ) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"store\", \"addr\" : %p, \"size\" : %lu}\n", (void*)last_write.addr, last_write.size);
+    
+    if (wb_above_main) {
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-load\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\"}\n", (void*)addr, size, TYPES[type]);
     }
-    last_write.size = 0;
-    last_write.addr = 0;
 }
 
-static void wb_on_store(Addr addr, SizeT size)
+static void wb_on_store(Addr addr, SizeT size, SizeT type)
 {
     if (wb_above_main) {
         
-        // first write since flush
-        if (last_write.addr == 0) {
-            last_write.addr = addr;
-            last_write.size = size;
-        }
-        // write imemdiately after the last one
-        else if ((last_write.addr + last_write.size) == addr ) {
-            last_write.size += size;
-        }
-        // write immediately preceeding the last one
-        else if ((addr + size) == last_write.addr) {
-            last_write.addr = addr;
-            last_write.size += size;
-        }
-        // another region, need to report separately
-        else {
-            flush_mem_ops();
-            last_write.addr = addr;
-            last_write.size = size;
-        }
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\"}\n", (void*)addr, size, TYPES[type]);
+        
     }
 }
+
+static void wb_on_store_with_data(Addr addr, SizeT size, SizeT type, HWord data)
+{
+    if (wb_above_main) {
+        
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\", \"data\" : %lu}\n", (void*)addr, size, TYPES[type], data);
+        
+    }
+}
+
+static void wb_instrument_store(IRExpr* dataExpr, IRExpr* addrExpr, IRSB* sbOut, IRExpr* const guard)
+{
+    IRType type = typeOfIRExpr(sbOut->tyenv, dataExpr);
+    Int dataSize = sizeofIRType(type);
+    
+    IRDirty* di;
+    // can emit data?
+    if (type == Ity_I64) {
+        di = unsafeIRDirty_0_N(0,
+                         "wb_on_store_with_data",
+                         VG_(fnptr_to_fnentry)(wb_on_store_with_data),
+                         mkIRExprVec_4(addrExpr, mkIRExpr_HWord(dataSize), mkIRExpr_HWord(type-Ity_INVALID), dataExpr));
+    }
+    else {
+        di = unsafeIRDirty_0_N(0,
+                         "wb_on_store",
+                         VG_(fnptr_to_fnentry)(wb_on_store),
+                         mkIRExprVec_3(addrExpr, mkIRExpr_HWord(dataSize), mkIRExpr_HWord(type-Ity_INVALID)));
+    }
+    if (guard)
+        di->guard = guard;
+   
+   addStmtToIRSB(sbOut, IRStmt_Dirty(di) );
+}
+
+
 
 
 static int superblock_counter = 0;
@@ -81,7 +110,6 @@ static void flush_last_line(void)
 {
     if (last_line.linenum > 0) {
         flush_stack();
-        flush_mem_ops();
         VG_(fprintf)(wb_output, "{\"action\" : \"line-step\", \"file\" : \"%s\", \"line\" : %u, \"dir\" : \"%s\"}\n", last_line.filename, last_line.linenum, last_line.dirname);
     }
 }
@@ -129,15 +157,6 @@ static void wb_on_instruction(Addr addr)
     }
 }
 
-static void wb_instrument_store(IRExpr* dataExpr, IRExpr* addrExpr, IRSB* sbOut, IRExpr* const guard)
-{
-    IRType type = typeOfIRExpr(sbIn->tyenv, data);
-    Int dsize = sizeofIRType(type);
-
-    
-}
-
-
 IRSB* wb_instrument ( VgCallbackClosure* closure,
         IRSB* sbIn, // superblock (single entry, multiple exit code sequence)
         const VexGuestLayout* layout, 
@@ -172,30 +191,52 @@ IRSB* wb_instrument ( VgCallbackClosure* closure,
             addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
             
         }
+
         // Store
         else if (st->tag == Ist_Store) {
             
             IRExpr* data = st->Ist.Store.data;
             IRExpr* addr = st->Ist.Store.addr;
             wb_instrument_store(data, addr, sbOut, NULL);
-            /*
-            IRType type = typeOfIRExpr(sbIn->tyenv, data);
-            Int dsize = sizeofIRType(type);
-            
-//             addEvent_Dw( sbOut, st->Ist.Store.addr,
-//                         sizeofIRType(type) );
-            tl_assert(isIRAtom(addr));
-            tl_assert(dsize >= 1 && dsize <= 512);
-            
-            IRExpr** argv =  mkIRExprVec_2(addr, mkIRExpr_HWord(dsize));
-            IRDirty* di   = unsafeIRDirty_0_N(
-                    2, // params 
-                    "wb_on_store",
-                    VG_(fnptr_to_fnentry)(&wb_on_store),
-                    argv );
+        }
+        
+        // Store with guard
+        else if (st->tag == Ist_StoreG) {
+            IRStoreG* sg   = st->Ist.StoreG.details;
+            IRExpr*   data = sg->data;
+            IRExpr*   addr = sg->addr;
+            wb_instrument_store(data, addr, sbOut, sg->guard);
+        }
+        
+        // Load with guard
+        else if (st->tag == Ist_LoadG) {
+            IRLoadG* lg        = st->Ist.LoadG.details;
+            IRType   type      = Ity_INVALID; /* loaded type */
+            IRType   typeWide  = Ity_INVALID; /* after implicit widening */
+            IRExpr*  addr_expr = lg->addr;
+            typeOfIRLoadGOp(lg->cvt, &typeWide, &type);
+            tl_assert(type != Ity_INVALID);
 
+            IRDirty* di = unsafeIRDirty_0_N(
+                    0, "wb_on_load",
+                    VG_(fnptr_to_fnentry)( &wb_on_load ), 
+                    mkIRExprVec_3(addr_expr, mkIRExpr_HWord(sizeofIRType(type)), mkIRExpr_HWord(type-Ity_INVALID)) );
+            di->guard = lg->guard;
             addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
-            */
+        }
+        
+        // Wrtie temp
+        else if (st->tag == Ist_WrTmp) {
+            const IRExpr* const data = st->Ist.WrTmp.data;
+            IRExpr* addr_expr = data->Iex.Load.addr;
+            if (data->tag == Iex_Load) {
+                IRType type = data->Iex.Load.ty;
+                IRDirty* di = unsafeIRDirty_0_N(
+                        0, "wb_on_load",
+                        VG_(fnptr_to_fnentry)( &wb_on_load ), 
+                        mkIRExprVec_3(addr_expr, mkIRExpr_HWord(sizeofIRType(type)), mkIRExpr_HWord(type-Ity_INVALID)) );
+                addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+            }
         }
         
         addStmtToIRSB( sbOut, st );
