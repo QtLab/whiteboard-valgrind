@@ -129,6 +129,14 @@ static void wb_on_instruction(Addr addr)
     }
 }
 
+static void wb_instrument_store(IRExpr* dataExpr, IRExpr* addrExpr, IRSB* sbOut, IRExpr* const guard)
+{
+    IRType type = typeOfIRExpr(sbIn->tyenv, data);
+    Int dsize = sizeofIRType(type);
+
+    
+}
+
 
 IRSB* wb_instrument ( VgCallbackClosure* closure,
         IRSB* sbIn, // superblock (single entry, multiple exit code sequence)
@@ -169,6 +177,8 @@ IRSB* wb_instrument ( VgCallbackClosure* closure,
             
             IRExpr* data = st->Ist.Store.data;
             IRExpr* addr = st->Ist.Store.addr;
+            wb_instrument_store(data, addr, sbOut, NULL);
+            /*
             IRType type = typeOfIRExpr(sbIn->tyenv, data);
             Int dsize = sizeofIRType(type);
             
@@ -185,6 +195,7 @@ IRSB* wb_instrument ( VgCallbackClosure* closure,
                     argv );
 
             addStmtToIRSB( sbOut, IRStmt_Dirty(di) );
+            */
         }
         
         addStmtToIRSB( sbOut, st );
