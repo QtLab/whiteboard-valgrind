@@ -11,7 +11,7 @@ int main(int argc, char** argv)
 	Whiteboard::MainWindow mainWindow;
 
 	if (argc >= 2)
-		mainWindow.openExecutable(argv[2]);
+		mainWindow.openExecutable(argv[1]);
 
 	mainWindow.show();
 

@@ -20,7 +20,7 @@ void wb_new_mem_stack(Addr a, SizeT len)
     if (wb_inside_user_code) {
         if (!old_SP) {
             old_SP = a + len;
-            VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %p }\n", (void*)old_SP);
+            VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %lu }\n", old_SP);
         }
         new_SP = a;
      }
@@ -36,7 +36,7 @@ void wb_die_mem_stack(Addr a, SizeT len)
 void flush_stack(void)
 {
     if (new_SP != old_SP) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %p }\n", (void*)new_SP);
+        VG_(fprintf)(wb_output, "{\"action\" : \"stack-change\", \"addr\" : %lu }\n", new_SP);
     }
     old_SP = new_SP;
 }
@@ -47,7 +47,7 @@ void* wb_malloc ( ThreadId tid, SizeT szB )
 {
     void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
     if (wb_above_main) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"malloc\", \"size\" : %lu, \"addr\" : %p }\n", szB, addr);
+        VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"malloc\", \"size\" : %lu, \"addr\" : %lu }\n", szB, (Addr)addr);
     }
     return addr;
 }
@@ -55,14 +55,14 @@ void* wb_malloc ( ThreadId tid, SizeT szB )
 void* wb___builtin_new ( ThreadId tid, SizeT szB )
 {
     void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
-    VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"new\", \"size\" : %lu, \"addr\" : %p }\n", szB, addr);
+    VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"new\", \"size\" : %lu, \"addr\" : %lu }\n", szB, (Addr)addr);
     return addr;
 }
 
 void* wb___builtin_vec_new ( ThreadId tid, SizeT szB )
 {
     void* addr = VG_(cli_malloc)(VG_(clo_alignment), szB);
-    VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"new[]\", \"size\" : %lu, \"addr\" : %p }\n", szB, addr);
+    VG_(fprintf)(wb_output, "{\"action\" : \"allocation\", \"type\" : \"new[]\", \"size\" : %lu, \"addr\" : %lu }\n", szB, (Addr)addr);
     return addr;
 }
 
@@ -79,20 +79,20 @@ void *wb_memalign ( ThreadId tid, SizeT alignB, SizeT szB )
 void wb_free ( ThreadId tid __attribute__((unused)), void* p )
 {
     if (wb_above_main) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"free\", \"addr\" : %p }\n", p);
+        VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"free\", \"addr\" : %lu }\n", (Addr)p);
     }
     VG_(cli_free)(p);
 }
 
 void wb___builtin_delete ( ThreadId tid, void* p )
 {
-    VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"delete\", \"addr\" : %p }\n", p);
+    VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"delete\", \"addr\" : %lu }\n", (Addr)p);
     VG_(cli_free)(p);
 }
 
 void wb___builtin_vec_delete ( ThreadId tid, void* p )
 {
-    VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"delete[]\", \"addr\" : %p }\n", p);
+    VG_(fprintf)(wb_output, "{\"action\" : \"free\", \"type\" : \"delete[]\", \"addr\" : %lu }\n", (Addr)p);
     VG_(cli_free)(p);
 }
 

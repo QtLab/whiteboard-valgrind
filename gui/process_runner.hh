@@ -1,9 +1,9 @@
 #pragma once
 
-#include <QJsonObject>
 #include <QObject>
 
-class QJsonObject
+class QJsonObject;
+class QProcess;
 
 namespace Whiteboard {
 
@@ -15,12 +15,11 @@ public:
 
 	void startExecutable(const QString& path);
 
-signals:
+	QJsonObject getNextRecord();
 
-	void newRecord(const QJsonObject& obj);
+private:
 
-public slots:
-
+	QProcess* process_ = nullptr;
 };
 
 } // namespace Whiteboard

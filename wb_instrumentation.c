@@ -42,7 +42,7 @@ static void wb_on_load(Addr addr, SizeT size, SizeT type)
 {
     
     if (wb_above_main) {
-        VG_(fprintf)(wb_output, "{\"action\" : \"mem-load\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\"}\n", (void*)addr, size, TYPES[type]);
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-load\", \"addr\" : %lu, \"size\" : %lu, \"type\" : \"%s\"}\n", addr, size, TYPES[type]);
     }
 }
 
@@ -50,7 +50,7 @@ static void wb_on_store(Addr addr, SizeT size, SizeT type)
 {
     if (wb_above_main) {
         
-        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\"}\n", (void*)addr, size, TYPES[type]);
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %lu, \"size\" : %lu, \"type\" : \"%s\"}\n", addr, size, TYPES[type]);
         
     }
 }
@@ -59,7 +59,7 @@ static void wb_on_store_with_data(Addr addr, SizeT size, SizeT type, HWord data)
 {
     if (wb_above_main) {
         
-        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %p, \"size\" : %lu, \"type\" : \"%s\", \"data\" : %lu}\n", (void*)addr, size, TYPES[type], data);
+        VG_(fprintf)(wb_output, "{\"action\" : \"mem-store\", \"addr\" : %lu, \"size\" : %lu, \"type\" : \"%s\", \"data\" : %lu}\n", addr, size, TYPES[type], data);
         
     }
 }

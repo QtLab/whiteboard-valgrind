@@ -16,6 +16,8 @@ add_executable(whiteborad_gui
 
 	main_window.cc main_window.hh main_window.ui
 	scene.hh scene.cc
+
+	process_runner.hh process_runner.cc
 )
 
 target_link_libraries(whiteborad_gui
