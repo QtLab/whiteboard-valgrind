@@ -2,6 +2,7 @@ project(whiteboard_gui)
 cmake_minimum_required(VERSION 3.0)
 
 find_package(Qt5Widgets)
+find_package(Qt5Network)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -27,5 +28,6 @@ add_executable(whiteborad_gui
 target_link_libraries(whiteborad_gui
 
 	Qt5::Widgets
+	Qt5::Network
 )
 

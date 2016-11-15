@@ -4,6 +4,7 @@
 
 class QJsonObject;
 class QProcess;
+class QLocalSocket;
 
 namespace Whiteboard {
 
@@ -20,6 +21,7 @@ public:
 private:
 
 	QProcess* process_ = nullptr;
+	QLocalSocket* input_ =nullptr;
 };
 
 } // namespace Whiteboard

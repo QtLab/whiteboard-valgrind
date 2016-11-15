@@ -3,8 +3,16 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QProcess>
+#include <QDir>
+#include <QLocalSocket>
 
 #include <QDebug>
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <stdio.h>
+#include <unistd.h>
 
 namespace Whiteboard {
 
@@ -24,17 +32,39 @@ void ProcessRunner::startExecutable(const QString& path)
 	connect(process_,  static_cast<void (QProcess::*)(QProcess::ProcessError)>(&QProcess::error), [](QProcess::ProcessError error) { qWarning("error"); });
 	connect(process_,  static_cast<void (QProcess::*)(int)>(&QProcess::finished), []() { qWarning("finished"); });
 
+	// create fifo
+	QString fifopath = QDir::tempPath() + QString("/whiteborad-%1.fifo").arg(::getpid());
+	qDebug() << "creating fifo at:" << fifopath;
+	::unlink(fifopath.toLocal8Bit().data());
+	int res = ::mkfifo(fifopath.toLocal8Bit().data(), S_IRWXU);
+	if (res != 0)
+	{
+		::perror("Unable to create fifo");
+		qFatal("Unable to create fifo");
+	}
+
+
 	qDebug() << "sarting " << path;
 
-	process_->start("/home/maciek/workspace/valgrind/inst/bin/valgrind", QStringList{"--tool=whiteboard", path});
+	process_->start("/home/maciek/workspace/valgrind/inst/bin/valgrind",
+			QStringList{"--tool=whiteboard", QString("--output=%1").arg(fifopath), path});
+
+	int fd = ::open(fifopath.toLocal8Bit().data(), O_RDONLY);
+	input_ = new QLocalSocket(this);
+	if (!input_->setSocketDescriptor(fd, QLocalSocket::ConnectedState, QLocalSocket::ReadOnly))
+	{
+		qFatal("Failed to open fifo");
+	}
+
+
 }
 
 QJsonObject ProcessRunner::getNextRecord()
 {
 	Q_ASSERT(process_);
 
-	process_->waitForReadyRead();
-	QByteArray line = process_->readLine();
+	input_->waitForReadyRead();
+	QByteArray line = input_->readLine();
 	qDebug() << "read line:" << line;
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson(line, &error);
