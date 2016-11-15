@@ -6,22 +6,24 @@
 #include "wb_global_state.h"
 
 #include "pub_tool_basics.h"
+#include "pub_tool_libcbase.h"
+#include "pub_tool_mallocfree.h"
 #include "pub_tool_tooliface.h"
 #include "pub_tool_vki.h"
 #include "pub_tool_libcprint.h"
 #include "pub_tool_libcassert.h"
-
-
+#include "pub_tool_options.h"     // command line options
 
 /// out ////
 VgFile* wb_output = NULL;
-
+static const HChar* wb_output_path = "/dev/stdout";
 
 
 ///////////////////////// inits ///////////////////////////////
 static void wb_post_clo_init(void)
 {
-    wb_output = VG_(fopen)("/dev/stdout", VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY, VKI_S_IRUSR|VKI_S_IWUSR);
+    VG_(printf("Will write event stream to %s\n", wb_output_path));
+    wb_output = VG_(fopen)(wb_output_path, VKI_O_CREAT|VKI_O_TRUNC|VKI_O_WRONLY, VKI_S_IRUSR|VKI_S_IWUSR);
     if (wb_output == NULL)
     {
         VG_(tool_panic)("unable to open output file");
@@ -33,6 +35,29 @@ static void wb_fini(Int exitcode)
 {
     VG_(fclose) (wb_output);
     wb_instrument_print_stats();
+}
+
+static void wb_print_usage(void)
+{
+   VG_(printf)(
+"    --output=<file>  Where to emit the event stream [STDOUT]\n"
+);
+}
+
+static void wb_print_debug_usage(void)
+{
+    wb_print_usage();
+}
+
+static Bool wb_process_cmd_line_option(const HChar* arg)
+{
+    const HChar* output;
+    if VG_STR_CLO (arg, "--output", output)
+    {
+        wb_output_path = VG_(strdup)("output", output);
+    }
+    
+    return True;
 }
 
 static void wb_pre_clo_init(void)
@@ -67,6 +92,9 @@ static void wb_pre_clo_init(void)
         0 );
     VG_(track_new_mem_stack)(wb_new_mem_stack);
     VG_(track_die_mem_stack)(wb_die_mem_stack);
+    VG_(needs_command_line_options)(wb_process_cmd_line_option,
+                                   wb_print_usage,
+                                   wb_print_debug_usage);
 
 }
 
