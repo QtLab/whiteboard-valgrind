@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons/code-context.png</file>
+        <file>icons/debug-run.png</file>
+        <file>icons/debug-step-instruction.png</file>
+        <file>icons/debug-step-into.png</file>
+        <file>icons/debug-step-out.png</file>
+        <file>icons/debug-step-over.png</file>
+    </qresource>
+</RCC>

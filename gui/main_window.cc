@@ -2,6 +2,9 @@
 #include "ui_main_window.h"
 
 #include "scene.hh"
+#include "debugger.hh"
+
+#include <QTimer>
 
 namespace Whiteboard {
 
@@ -11,6 +14,9 @@ MainWindow::MainWindow(QWidget *p) :
 {
 	ui_->setupUi(this);
 	scene_ = new Scene(this);
+	debugger_ = new Debugger(this);
+
+	connect(debugger_, SIGNAL(statusChanged(const QString&)), statusBar(), SLOT(showMessage(const QString&)));
 }
 
 MainWindow::~MainWindow()
@@ -20,7 +26,10 @@ MainWindow::~MainWindow()
 
 void MainWindow::openExecutable(const QString& file)
 {
-	scene_->openExecutable(file);
+	QTimer::singleShot(100, [this, file]
+	{
+		debugger_->openExecutable(file);
+	});
 }
 
 } // namespace Whiteboard

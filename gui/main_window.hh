@@ -5,6 +5,7 @@
 namespace Whiteboard {
 
 class Scene;
+class Debugger;
 
 namespace Ui {
 class MainWindow;
@@ -25,6 +26,8 @@ public slots:
 private:
 	Ui::MainWindow* ui_;
 	Scene* scene_;
+	Debugger* debugger_;
+
 
 };
 
