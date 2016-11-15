@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *p) :
 
 	connect(debugger_, SIGNAL(statusChanged(const QString&)), statusBar(), SLOT(showMessage(const QString&)));
 	connect(debugger_, SIGNAL(sourceLineReached(const QString&, int)), sourceView_, SLOT(showSource(const QString&, int)));
+
+	// debufger actions
+	connect(ui_->actionStep_ot_next_line, SIGNAL(triggered()), debugger_, SLOT(stepInto()));
 }
 
 MainWindow::~MainWindow()
@@ -38,3 +41,4 @@ void MainWindow::openExecutable(const QString& file)
 }
 
 } // namespace Whiteboard
+

@@ -45,6 +45,7 @@
     <bool>false</bool>
    </attribute>
    <addaction name="actionSource_view"/>
+   <addaction name="actionStep_ot_next_line"/>
   </widget>
   <action name="actionSource_view">
    <property name="checkable">
@@ -59,6 +60,18 @@
    </property>
    <property name="text">
     <string>Source view</string>
+   </property>
+  </action>
+  <action name="actionStep_ot_next_line">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/icons/debug-step-into.png</normaloff>:/icons/icons/debug-step-into.png</iconset>
+   </property>
+   <property name="text">
+    <string>Step ot next line</string>
+   </property>
+   <property name="toolTip">
+    <string>Step to the next source line</string>
    </property>
   </action>
  </widget>

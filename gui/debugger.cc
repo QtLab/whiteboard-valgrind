@@ -25,6 +25,11 @@ void Debugger::openExecutable(const QString& path)
 	emit statusChanged(tr("Paused"));
 }
 
+void Debugger::stepInto()
+{
+	processUntilNextLine();
+}
+
 void Debugger::processUntilNextLine()
 {
 	while(true)

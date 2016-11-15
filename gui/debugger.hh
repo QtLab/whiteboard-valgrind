@@ -20,6 +20,7 @@ signals:
 public slots:
 
 	void openExecutable(const QString& path);
+	void stepInto();
 
 private:
 

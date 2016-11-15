@@ -35,7 +35,7 @@ QJsonObject ProcessRunner::getNextRecord()
 
 	process_->waitForReadyRead();
 	QByteArray line = process_->readLine();
-	//qDebug() << "read line:" << line;
+	qDebug() << "read line:" << line;
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson(line, &error);
 
