@@ -23,11 +23,15 @@ void Debugger::openExecutable(const QString& path)
 	QCoreApplication::processEvents();
 	processUntilNextLine();
 	emit statusChanged(tr("Paused"));
+	running_ = true;
 }
 
 void Debugger::stepInto()
 {
-	processUntilNextLine();
+	if (running_)
+	{
+		processUntilNextLine();
+	}
 }
 
 void Debugger::processUntilNextLine()
@@ -35,6 +39,12 @@ void Debugger::processUntilNextLine()
 	while(true)
 	{
 		QJsonObject obj = runner_->getNextRecord();
+		if (obj.isEmpty())
+		{
+			emit statusChanged("Process finished");
+			running_ = false;
+			break;
+		}
 		processNextRecord(obj);
 		QString action = obj["action"].toString();
 		Q_ASSERT(!action.isEmpty());

@@ -33,10 +33,10 @@ void ProcessRunner::startExecutable(const QString& path)
 	connect(process_,  static_cast<void (QProcess::*)(int)>(&QProcess::finished), []() { qWarning("finished"); });
 
 	// create fifo
-	QString fifopath = QDir::tempPath() + QString("/whiteborad-%1.fifo").arg(::getpid());
-	qDebug() << "creating fifo at:" << fifopath;
-	::unlink(fifopath.toLocal8Bit().data());
-	int res = ::mkfifo(fifopath.toLocal8Bit().data(), S_IRWXU);
+	fifoPath_ = QDir::tempPath() + QString("/whiteborad-%1.fifo").arg(::getpid());
+	qDebug() << "creating fifo at:" << fifoPath_;
+	::unlink(fifoPath_.toLocal8Bit().data());
+	int res = ::mkfifo(fifoPath_.toLocal8Bit().data(), S_IRWXU);
 	if (res != 0)
 	{
 		::perror("Unable to create fifo");
@@ -47,9 +47,9 @@ void ProcessRunner::startExecutable(const QString& path)
 	qDebug() << "sarting " << path;
 
 	process_->start("/home/maciek/workspace/valgrind/inst/bin/valgrind",
-			QStringList{"--tool=whiteboard", QString("--output=%1").arg(fifopath), path});
+			QStringList{"--tool=whiteboard", QString("--output=%1").arg(fifoPath_), path});
 
-	int fd = ::open(fifopath.toLocal8Bit().data(), O_RDONLY);
+	int fd = ::open(fifoPath_.toLocal8Bit().data(), O_RDONLY);
 	input_ = new QLocalSocket(this);
 	if (!input_->setSocketDescriptor(fd, QLocalSocket::ConnectedState, QLocalSocket::ReadOnly))
 	{
@@ -65,7 +65,16 @@ QJsonObject ProcessRunner::getNextRecord()
 
 	input_->waitForReadyRead();
 	QByteArray line = input_->readLine();
-	qDebug() << "read line:" << line;
+	//qDebug() << "read line:" << line;
+	if (line.isEmpty())
+	{
+		//cleanup
+		input_->close();
+		delete input_;
+		::unlink(fifoPath_.toLocal8Bit().data());
+
+		return {};
+	}
 	QJsonParseError error;
 	QJsonDocument doc = QJsonDocument::fromJson(line, &error);
 

@@ -30,6 +30,7 @@ private:
 	void onLineStep(const QJsonObject& obj);
 
 	ProcessRunner* runner_ = nullptr;
+	bool running_ = false;
 };
 
 } // namespace Whiteboard

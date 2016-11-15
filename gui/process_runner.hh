@@ -21,7 +21,9 @@ public:
 private:
 
 	QProcess* process_ = nullptr;
-	QLocalSocket* input_ =nullptr;
+	QLocalSocket* input_ = nullptr;
+
+	QString fifoPath_;
 };
 
 } // namespace Whiteboard
