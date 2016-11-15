@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mem_event.hh"
+
 #include <QGraphicsItem>
 
 namespace Whiteboard {
@@ -13,6 +15,9 @@ public:
 
 	QRectF boundingRect() const override;
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
+
+	bool ownsAddress(quint64 addr) const { return addr <= top_ && addr >= (top_-size_); }
+	void addMemEvent(const MemEvent& e);
 
 private:
 

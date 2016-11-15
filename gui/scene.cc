@@ -28,8 +28,14 @@ void Scene::onStackChange(quint64 addr)
 
 void Scene::onMemEvent(const MemEvent& e)
 {
-	// TODO
 	qDebug() << e;
+
+	// stack?
+	if (stack_ && stack_->ownsAddress(e.addr))
+	{
+		stack_->addMemEvent(e);
+	}
+
 }
 
 

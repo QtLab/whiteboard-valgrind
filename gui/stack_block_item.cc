@@ -50,4 +50,10 @@ void StackBlockItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* op
 	painter->drawText(QRectF(MARGIN, MARGIN, w-MARGIN, HEADER_HEIGHT), Qt::AlignCenter, "Stack");
 }
 
+void StackBlockItem::addMemEvent(const MemEvent& e)
+{
+	// TODO
+	qDebug() << "stack mem event";
+}
+
 } // namespace Whiteboard
