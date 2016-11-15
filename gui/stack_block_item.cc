@@ -38,18 +38,18 @@ void StackBlockItem::setStackBottom(quint64 addr)
 
 		if (newSize < size_)
 		{
-			qDebug() << "stack shrunk from " << size_ << "to" << newSize;
-			qDebug() << " new bottom" << top_ - size_;
+			//qDebug() << "stack shrunk from " << size_ << "to" << newSize;
+			//qDebug() << " new bottom" << top_ - size_;
 			// delete cells below bottom
 			auto end = cells_.upperBound(top_ - size_);
 			for (auto it = cells_.begin(); it != end;)
 			{
-				qDebug() << "deletimg cell " << it.key();
+				//qDebug() << "deleting cell " << it.key();
 				delete it.value();
 				it = cells_.erase(it);
 			}
 		}
-		else qDebug() << "stack grew from " << size_ << "to" << newSize;
+		//else qDebug() << "stack grew from " << size_ << "to" << newSize;
 
 		size_ = newSize;
 

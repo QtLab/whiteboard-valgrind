@@ -24,13 +24,17 @@ void Debugger::openExecutable(const QString& path)
 	processUntilNextLine();
 	emit statusChanged(tr("Paused"));
 	running_ = true;
+	emit canRun(true);
 }
 
 void Debugger::stepInto()
 {
 	if (running_)
 	{
+		emit canRun(false);
 		processUntilNextLine();
+		// TODO wait for animation to be over
+		if (running_) emit canRun(true);
 	}
 }
 

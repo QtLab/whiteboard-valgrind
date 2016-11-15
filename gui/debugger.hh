@@ -24,6 +24,8 @@ signals:
 	void stackChange(quint64 addr);
 	void memEvent(const MemEvent& ev);
 
+	void canRun(bool);
+
 public slots:
 
 	void openExecutable(const QString& path);

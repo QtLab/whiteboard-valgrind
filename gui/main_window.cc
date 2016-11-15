@@ -29,6 +29,7 @@ MainWindow::MainWindow(QWidget *p) :
 
 	// debugger actions
 	connect(ui_->actionStep_ot_next_line, SIGNAL(triggered()), debugger_, SLOT(stepInto()));
+	connect(debugger_, SIGNAL(canRun(bool)), ui_->actionStep_ot_next_line, SLOT(setEnabled(bool)));
 }
 
 MainWindow::~MainWindow()

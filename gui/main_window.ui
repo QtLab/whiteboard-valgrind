@@ -70,6 +70,9 @@
    </property>
   </action>
   <action name="actionStep_ot_next_line">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="icon">
     <iconset resource="resources.qrc">
      <normaloff>:/icons/icons/debug-step-into.png</normaloff>:/icons/icons/debug-step-into.png</iconset>
