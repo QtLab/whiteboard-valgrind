@@ -17,6 +17,7 @@ void Scene::setViewportSize(const QSize& sz)
 
 void Scene::onStackChange(quint64 addr)
 {
+	qDebug() << "stack: " << addr;
 	if (!stack_)
 	{
 		stack_ = new StackBlockItem(addr);
@@ -24,16 +25,22 @@ void Scene::onStackChange(quint64 addr)
 		stack_->setPos(10, 10);
 		stack_->show();
 	}
+	else
+	{
+		stack_->setStackBottom(addr);
+	}
 }
 
 void Scene::onMemEvent(const MemEvent& e)
 {
-	qDebug() << e;
-
 	// stack?
 	if (stack_ && stack_->ownsAddress(e.addr))
 	{
 		stack_->addMemEvent(e);
+	}
+	else
+	{
+		//qDebug() << "unknonw memory event: " << e;
 	}
 
 }

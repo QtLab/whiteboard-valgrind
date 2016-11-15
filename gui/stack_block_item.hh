@@ -3,15 +3,18 @@
 #include "mem_event.hh"
 
 #include <QGraphicsItem>
+#include <QMap>
 
 namespace Whiteboard {
+
+class MemCellItem;
 
 class StackBlockItem : public QGraphicsItem
 {
 public:
 	StackBlockItem(quint64 topAddr, QGraphicsItem* p = nullptr);
 
-	void setStackTop(quint64 addr);
+	void setStackBottom(quint64 addr);
 
 	QRectF boundingRect() const override;
 	void paint(QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget) override;
@@ -20,6 +23,10 @@ public:
 	void addMemEvent(const MemEvent& e);
 
 private:
+
+	MemCellItem* getCell(quint64 addr);
+
+	QMap<quint64, MemCellItem*> cells_;
 
 	quint64 top_;
 	quint64 size_;
