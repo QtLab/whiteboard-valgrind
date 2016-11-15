@@ -19,6 +19,7 @@ add_executable(whiteborad_gui
 	main_window.cc main_window.hh main_window.ui
 	scene.cc scene.hh
 	debugger.cc debugger.hh
+	source_view.cc source_view.hh source_view.ui
 
 	process_runner.hh process_runner.cc
 )

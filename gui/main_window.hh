@@ -6,6 +6,7 @@ namespace Whiteboard {
 
 class Scene;
 class Debugger;
+class SourceView;
 
 namespace Ui {
 class MainWindow;
@@ -27,6 +28,7 @@ private:
 	Ui::MainWindow* ui_;
 	Scene* scene_;
 	Debugger* debugger_;
+	SourceView* sourceView_;
 
 
 };

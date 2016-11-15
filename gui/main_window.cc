@@ -3,6 +3,7 @@
 
 #include "scene.hh"
 #include "debugger.hh"
+#include "source_view.hh"
 
 #include <QTimer>
 
@@ -15,8 +16,11 @@ MainWindow::MainWindow(QWidget *p) :
 	ui_->setupUi(this);
 	scene_ = new Scene(this);
 	debugger_ = new Debugger(this);
+	sourceView_ = new SourceView(this);
+	sourceView_->setWindowFlags(Qt::Window);
 
 	connect(debugger_, SIGNAL(statusChanged(const QString&)), statusBar(), SLOT(showMessage(const QString&)));
+	connect(debugger_, SIGNAL(sourceLineReached(const QString&, int)), sourceView_, SLOT(showSource(const QString&, int)));
 }
 
 MainWindow::~MainWindow()
@@ -29,6 +33,7 @@ void MainWindow::openExecutable(const QString& file)
 	QTimer::singleShot(100, [this, file]
 	{
 		debugger_->openExecutable(file);
+		sourceView_->show();
 	});
 }
 
