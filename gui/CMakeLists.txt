@@ -25,6 +25,9 @@ add_executable(whiteborad_gui
 	process_runner.hh process_runner.cc
 
 	mem_event.hh
+
+	memory_block_item.cc memory_block_item.hh
+	stack_block_item.cc stack_block_item.hh
 )
 
 target_link_libraries(whiteborad_gui

@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget *p) :
 	sourceView_ = new SourceView(this);
 	sourceView_->setWindowFlags(Qt::Window);
 
+	ui_->graphicsView->setScene(scene_);
+
 	connect(debugger_, SIGNAL(statusChanged(const QString&)), statusBar(), SLOT(showMessage(const QString&)));
 	connect(debugger_, SIGNAL(sourceLineReached(const QString&, int)), sourceView_, SLOT(showSource(const QString&, int)));
 	connect(debugger_, SIGNAL(stackChange(quint64)), scene_, SLOT(onStackChange(quint64)));
@@ -41,6 +43,18 @@ void MainWindow::openExecutable(const QString& file)
 		debugger_->openExecutable(file);
 		sourceView_->show();
 	});
+}
+
+void MainWindow::resizeEvent(QResizeEvent* e)
+{
+	QMainWindow::resizeEvent(e);
+	scene_->setViewportSize(ui_->graphicsView->viewport()->size());
+}
+
+void MainWindow::showEvent(QShowEvent* e)
+{
+	QMainWindow::showEvent(e);
+	scene_->setViewportSize(ui_->graphicsView->viewport()->size());
 }
 
 } // namespace Whiteboard

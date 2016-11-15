@@ -25,12 +25,16 @@ public slots:
 	void openExecutable(const QString& file);
 
 private:
+
+	void resizeEvent(QResizeEvent* e) override;
+	void showEvent(QShowEvent* e) override;
+
 	Ui::MainWindow* ui_;
 	Scene* scene_;
 	Debugger* debugger_;
 	SourceView* sourceView_;
 
-
+	bool sceneTransofrmationSet_ = false;
 };
 
 

@@ -6,11 +6,15 @@
 
 namespace Whiteboard {
 
+class StackBlockItem;
+
 class Scene : public QGraphicsScene
 {
 	Q_OBJECT
 public:
 	Scene(QObject* p = nullptr);
+
+	void setViewportSize(const QSize& sz);
 
 public slots:
 
@@ -18,6 +22,8 @@ public slots:
 	void onMemEvent(const MemEvent& e);
 
 private:
+
+	StackBlockItem* stack_ = nullptr;
 
 };
 
