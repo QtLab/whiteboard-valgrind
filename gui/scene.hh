@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mem_event.hh"
+
 #include <QGraphicsScene>
 
 namespace Whiteboard {
@@ -12,7 +14,8 @@ public:
 
 public slots:
 
-signals:
+	void onStackChange(quint64 addr);
+	void onMemEvent(const MemEvent& e);
 
 private:
 

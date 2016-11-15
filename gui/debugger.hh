@@ -1,5 +1,7 @@
 #pragma once
 
+#include "mem_event.hh"
+
 #include <QObject>
 
 namespace Whiteboard {
@@ -10,12 +12,17 @@ class Debugger : public QObject
 {
 	Q_OBJECT
 public:
+
 	explicit Debugger(QObject* p = nullptr);
 
 signals:
 
 	void sourceLineReached(const QString& path, int line);
 	void statusChanged(const QString& status);
+
+	// memory events
+	void stackChange(quint64 addr);
+	void memEvent(const MemEvent& ev);
 
 public slots:
 
@@ -28,6 +35,8 @@ private:
 	void processNextRecord(const QJsonObject& obj);
 
 	void onLineStep(const QJsonObject& obj);
+	void onMemStore(const QJsonObject& obj);
+	void onMemLoad(const QJsonObject& obj);
 
 	ProcessRunner* runner_ = nullptr;
 	bool running_ = false;

@@ -23,6 +23,8 @@ add_executable(whiteborad_gui
 	source_view.cc source_view.hh source_view.ui
 
 	process_runner.hh process_runner.cc
+
+	mem_event.hh
 )
 
 target_link_libraries(whiteborad_gui

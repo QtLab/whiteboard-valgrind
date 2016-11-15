@@ -58,10 +58,17 @@ void Debugger::processNextRecord(const QJsonObject& obj)
 	QString action = obj["action"].toString();
 
 	if (action == "line-step")
-		return onLineStep(obj);
+		onLineStep(obj);
+	else if (action == "stack-change")
+		emit stackChange(obj["addr"].toString().toLongLong());
+	else if (action == "mem-store")
+		onMemStore(obj);
+	else if (action == "mem-load")
+		onMemLoad(obj);
 
+	else
 	// TODO
-	qDebug() << QJsonDocument(obj).toJson();
+		qDebug() << QJsonDocument(obj).toJson();
 }
 
 void Debugger::onLineStep(const QJsonObject& obj)
@@ -73,6 +80,28 @@ void Debugger::onLineStep(const QJsonObject& obj)
 	QFileInfo f(dir, file);
 
 	emit sourceLineReached(f.absoluteFilePath(), line);
+}
+
+void Debugger::onMemStore(const QJsonObject& obj)
+{
+	MemEvent event;
+	event.addr = obj["addr"].toString().toLongLong();
+	event.size = obj["size"].toInt();
+	if (event.size == 8)
+		event.data = obj["data"].toString().toLongLong();
+	event.type = MemEvent::STORE;
+
+	emit memEvent(event);
+}
+
+void Debugger::onMemLoad(const QJsonObject& obj)
+{
+	MemEvent event;
+	event.addr = obj["addr"].toString().toLongLong();
+	event.size = obj["size"].toInt();
+	event.type = MemEvent::LOAD;
+
+	emit memEvent(event);
 }
 
 } // namespace Whiteboard
