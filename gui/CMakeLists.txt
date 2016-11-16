@@ -27,7 +27,6 @@ add_executable(whiteborad_gui
 	mem_event.hh
 
 	memory_block_item.cc memory_block_item.hh
-	stack_block_item.cc stack_block_item.hh
 	mem_cell_item.hh mem_cell_item.cc
 )
 
