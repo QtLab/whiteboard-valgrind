@@ -29,6 +29,8 @@ private:
 	void resizeEvent(QResizeEvent* e) override;
 	void showEvent(QShowEvent* e) override;
 
+	void onReady();
+
 	Ui::MainWindow* ui_;
 	Scene* scene_;
 	Debugger* debugger_;

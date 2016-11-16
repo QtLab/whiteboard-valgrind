@@ -30,7 +30,10 @@ MainWindow::MainWindow(QWidget *p) :
 
 	// debugger actions
 	connect(ui_->actionStep_ot_next_line, SIGNAL(triggered()), debugger_, SLOT(stepInto()));
-	connect(debugger_, SIGNAL(canRun(bool)), ui_->actionStep_ot_next_line, SLOT(setEnabled(bool)));
+
+	// ready
+	connect(debugger_, &Debugger::ready, this, &MainWindow::onReady);
+	connect(scene_, &Scene::ready, this, &MainWindow::onReady);
 }
 
 MainWindow::~MainWindow()
@@ -57,6 +60,16 @@ void MainWindow::showEvent(QShowEvent* e)
 {
 	QMainWindow::showEvent(e);
 	scene_->setViewportSize(ui_->graphicsView->viewport()->size());
+}
+
+void MainWindow::onReady()
+{
+	if (scene_->isReady())
+		qDebug() << "Scene ready";
+	if (debugger_->isReady())
+		qDebug() << "debugger ready";
+
+	ui_->actionStep_ot_next_line->setEnabled(scene_->isReady() && debugger_->isReady());
 }
 
 } // namespace Whiteboard

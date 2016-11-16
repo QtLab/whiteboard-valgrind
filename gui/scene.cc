@@ -1,9 +1,12 @@
 #include "scene.hh"
 
 #include "memory_block_item.hh"
+#include "animations.hh"
 
 #include <QDebug>
 #include <QGraphicsRectItem>
+#include <QTimer>
+#include <QDateTime>
 
 #include <algorithm>
 
@@ -17,11 +20,22 @@ Scene::Scene(QObject* p) : QGraphicsScene(p)
 	QGraphicsRectItem* strut = new QGraphicsRectItem(QRectF(0, 0, 2048, 2048));
 	strut->show();
 	addItem(strut);
+
+	timer_ = new QTimer(this);
+	timer_->setInterval(100);
+	connect(timer_, &QTimer::timeout, this, &Scene::processAnimations);
+
+	animations_ = new Animations(this);
 }
 
 void Scene::setViewportSize(const QSize& sz)
 {
 	viewportSize_ = sz;
+}
+
+bool Scene::isReady() const
+{
+	return !animations_->running();
 }
 
 void Scene::onStackChange(quint64 addr)
@@ -42,7 +56,32 @@ void Scene::onStackChange(quint64 addr)
 	}
 }
 
+template<typename EventT>
+void Scene::executeOrQueue(const EventT& e)
+{
+	qint64 now = QDateTime::currentMSecsSinceEpoch();
+	if (animations_->canAddNew(now))
+	{
+		executeEvent(e, now);
+
+		if (isReady())
+			emit ready();
+		else
+			timer_->start();
+	}
+	else
+	{
+		awaitingEvents_.enqueue([this, e](quint64 now) { executeEvent(e, now); });
+	}
+}
+
+
 void Scene::onMemEvent(const MemEvent& e)
+{
+	executeOrQueue(e);
+}
+
+void Scene::executeEvent(const MemEvent& e, qint64 now)
 {
 	// stack?
 	if (stack_ && stack_->ownsAddress(e.addr))
@@ -59,12 +98,15 @@ void Scene::onMemEvent(const MemEvent& e)
 				return;
 			}
 		}
-		//qDebug() << "unknown memory event: " << e;
 	}
-
 }
 
 void Scene::onHeapEvent(const HeapEvent& e)
+{
+	executeOrQueue(e);
+}
+
+void Scene::executeEvent(const HeapEvent &e, qint64 now)
 {
 	if (e.type == HeapEvent::ALLOC)
 	{
@@ -95,6 +137,22 @@ void Scene::onHeapEvent(const HeapEvent& e)
 		delete *it;
 		heap_.erase(it);
 	}
+}
+
+void Scene::processAnimations()
+{
+	qint64 now = QDateTime::currentMSecsSinceEpoch();
+	animations_->advance(now);
+
+	// execute new events from Q
+	if (animations_->canAddNew(now) && !awaitingEvents_.empty())
+	{
+		Event e = awaitingEvents_.dequeue();
+		e(now);
+	}
+
+	if (isReady())
+		emit ready();
 }
 
 QPointF Scene::findPlaceForBlock(const QSizeF& sz) const

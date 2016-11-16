@@ -1,8 +1,9 @@
 project(whiteboard_gui)
 cmake_minimum_required(VERSION 3.0)
 
-find_package(Qt5Widgets)
-find_package(Qt5Network)
+find_package(Qt5Widgets REQUIRED)
+find_package(Qt5Network REQUIRED)
+find_package(Boost REQUIRED)
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -29,7 +30,10 @@ add_executable(whiteborad_gui
 	memory_block_item.cc memory_block_item.hh
 	mem_cell_item.hh mem_cell_item.cc
 	item_types.hh
+	animations.hh animations.cc
 )
+
+target_include_directories(whiteborad_gui PRIVATE ${Boost_INCLUDE_DIR})
 
 target_link_libraries(whiteborad_gui
 

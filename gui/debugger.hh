@@ -15,6 +15,8 @@ public:
 
 	explicit Debugger(QObject* p = nullptr);
 
+	bool isReady() const { return running_ && ready_; }
+
 signals:
 
 	void sourceLineReached(const QString& path, int line);
@@ -25,7 +27,7 @@ signals:
 	void memEvent(const MemEvent& ev);
 	void heapEvent(const HeapEvent& ev);
 
-	void canRun(bool);
+	void ready();
 
 public slots:
 
@@ -45,6 +47,7 @@ private:
 
 	ProcessRunner* runner_ = nullptr;
 	bool running_ = false;
+	bool ready_ = false; //for next command
 };
 
 } // namespace Whiteboard
