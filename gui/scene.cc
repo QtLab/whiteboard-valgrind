@@ -19,7 +19,7 @@ Scene::Scene(QObject* p) : QGraphicsScene(p)
 
 void Scene::setViewportSize(const QSize& sz)
 {
-	// more trouble than it's worth
+	viewportSize_ = sz;
 }
 
 void Scene::onStackChange(quint64 addr)
@@ -57,7 +57,7 @@ void Scene::onMemEvent(const MemEvent& e)
 				return;
 			}
 		}
-		qDebug() << "unknown memory event: " << e;
+		//qDebug() << "unknown memory event: " << e;
 	}
 
 }
@@ -66,19 +66,25 @@ void Scene::onHeapEvent(const HeapEvent& e)
 {
 	if (e.type == HeapEvent::ALLOC)
 	{
+		qDebug() << " ALLOC " << e.addr;
+
 		if (heap_.contains(e.addr))
 			throw std::runtime_error("Duplicate mem block");
 
 		MemoryBlockItem* block = new MemoryBlockItem(e.addr, e.size);
 		block->setName(e.call);
 		block->setColor(Qt::cyan);
-		block->setPos(10 + (10+8*30)*(heap_.size()+1), 10);
+
+		QPointF pos = findPlaceForBlock(block->boundingRect().size());
+		block->setPos(pos);
+
 		addItem(block);
 
 		heap_.insert(e.addr, block);
 	}
 	else
 	{
+		qDebug() << " FREE " << e.addr;
 		auto it = heap_.find(e.addr);
 		if (it == heap_.end())
 			throw std::runtime_error("Free on unknown block");
@@ -88,6 +94,40 @@ void Scene::onHeapEvent(const HeapEvent& e)
 		heap_.erase(it);
 	}
 }
+
+QPointF Scene::findPlaceForBlock(const QSizeF& sz) const
+{
+	double x0 = 180;
+	double y0 = 10;
+
+	double xIncr = 45;
+	double yIncr = 40;
+
+	double maxX = 2048;
+	double maxY = viewportSize_.height() - yIncr;
+
+	for(double x = x0; x < maxX; x += xIncr)
+	{
+		for(double y = y0; y < maxY; y += yIncr)
+		{
+			QPointF candidate(x, y);
+			QRectF rect(candidate, sz);
+			auto list = items(candidate, Qt::IntersectsItemBoundingRect);
+			// TODO ignore arrows and any other annotations
+			if (list.size() == 1)
+			{
+				return candidate;
+			}
+		}
+	}
+
+	// nothing.... fall back to random
+	int xr = qrand() % viewportSize_.width();
+	int yr = qrand() % int(maxY);
+
+	return QPointF(xr, yr);
+}
+
 
 
 } // namespace Whiteboard

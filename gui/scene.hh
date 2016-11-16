@@ -24,9 +24,13 @@ public slots:
 
 private:
 
+	// finds a place for a block of specific size
+	QPointF findPlaceForBlock(const QSizeF& sz) const;
+
 	MemoryBlockItem* stack_ = nullptr;
 
 	QMap<quint64, MemoryBlockItem*> heap_;
+	QSize viewportSize_;
 
 };
 
