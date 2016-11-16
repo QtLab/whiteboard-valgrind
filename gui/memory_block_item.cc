@@ -50,10 +50,14 @@ void MemoryBlockItem::addMemEvent(const MemEvent& e, Animations& animations, qin
 	{
 		MemCellItem* cell = getCell(e.addr + i);
 
-		if (i == 0 && e.type == MemEvent::LOAD)
+		// TODO detect non-aligned access
+		if (i == 0)
 		{
-			// TODO detect not aligned access
-			animations.addMemLoad(cell, e.size, now);
+			if (e.type == MemEvent::LOAD)
+				animations.addMemLoad(cell, e.size, now);
+			else
+				animations.addMemStore(cell, e.size, now);
+
 		}
 	}
 }

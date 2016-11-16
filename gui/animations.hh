@@ -26,6 +26,7 @@ public:
 
 	// creating animations
 	void addMemLoad(MemCellItem* cell, int size, qint64 now);
+	void addMemStore(MemCellItem* cell, int size, qint64 now);
 
 private:
 
