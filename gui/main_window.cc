@@ -64,10 +64,10 @@ void MainWindow::showEvent(QShowEvent* e)
 
 void MainWindow::onReady()
 {
-	if (scene_->isReady())
-		qDebug() << "Scene ready";
-	if (debugger_->isReady())
-		qDebug() << "debugger ready";
+//	if (scene_->isReady())
+//		qDebug() << "Scene ready";
+//	if (debugger_->isReady())
+//		qDebug() << "debugger ready";
 
 	ui_->actionStep_ot_next_line->setEnabled(scene_->isReady() && debugger_->isReady());
 }

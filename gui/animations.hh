@@ -3,9 +3,10 @@
 #include <QObject>
 #include <QMultiMap>
 
-class QGraphicsItem;
-
 namespace Whiteboard {
+
+class MemCellItem;
+class Animation;
 
 // Manages running animations
 class Animations : public QObject
@@ -23,9 +24,12 @@ public:
 	// if animations are running
 	bool running() const { return !animations_.empty(); }
 
+	// creating animations
+	void addMemLoad(MemCellItem* cell, int size, qint64 now);
+
 private:
 
-	QMultiMap<qint64, QGraphicsItem*> animations_; // sorted by time when they are supposed to be removed
+	QMultiMap<qint64, Animation*> animations_; // sorted by time when they are supposed to be removed
 	qint64 blockedUntil_ = 0;
 };
 

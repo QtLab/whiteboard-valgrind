@@ -8,6 +8,7 @@
 namespace Whiteboard {
 
 class MemCellItem;
+class Animations;
 
 class MemoryBlockItem: public QGraphicsItem
 {
@@ -23,7 +24,7 @@ public:
 	void moveAddr(quint64 addr);
 
 	bool ownsAddress(quint64 addr) const { return addr >= addr_ && addr <= (addr_ + size_); }
-	void addMemEvent(const MemEvent& e);
+	void addMemEvent(const MemEvent& e, Animations& animations, qint64 now);
 
 	QString getName() const { return name_; }
 	void setName(const QString& name);

@@ -1,6 +1,7 @@
 #include "memory_block_item.hh"
 
 #include "mem_cell_item.hh"
+#include "animations.hh"
 
 #include <QPainter>
 
@@ -43,14 +44,16 @@ void MemoryBlockItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 //	painter->drawRect(boundingRect());
 }
 
-void MemoryBlockItem::addMemEvent(const MemEvent& e)
+void MemoryBlockItem::addMemEvent(const MemEvent& e, Animations& animations, qint64 now)
 {
-	if (e.type == MemEvent::STORE)
+	for(int i = 0; i < e.size; i++)
 	{
-		for(int i = 0; i < e.size; i++)
+		MemCellItem* cell = getCell(e.addr + i);
+
+		if (i == 0 && e.type == MemEvent::LOAD)
 		{
-			MemCellItem* cell = getCell(e.addr + i);
-			// TODO set value on cell
+			// TODO detect not aligned access
+			animations.addMemLoad(cell, e.size, now);
 		}
 	}
 }

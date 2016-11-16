@@ -24,6 +24,7 @@ void Debugger::openExecutable(const QString& path)
 	processUntilNextLine();
 	emit statusChanged(tr("Paused"));
 	running_ = true;
+	ready_ = true;
 	emit ready();
 }
 
@@ -33,7 +34,11 @@ void Debugger::stepInto()
 	{
 		ready_ = false;
 		processUntilNextLine();
-		if (running_) emit ready();
+		if (running_)
+		{
+			ready_ = true;
+			emit ready();
+		}
 	}
 }
 

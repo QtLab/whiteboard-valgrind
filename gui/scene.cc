@@ -62,6 +62,7 @@ void Scene::executeOrQueue(const EventT& e)
 	qint64 now = QDateTime::currentMSecsSinceEpoch();
 	if (animations_->canAddNew(now))
 	{
+		//qDebug() << now <<  "executing event: " << e;
 		executeEvent(e, now);
 
 		if (isReady())
@@ -71,7 +72,12 @@ void Scene::executeOrQueue(const EventT& e)
 	}
 	else
 	{
-		awaitingEvents_.enqueue([this, e](quint64 now) { executeEvent(e, now); });
+		//qDebug() << now << "queueing event: " << e;
+		awaitingEvents_.enqueue([this, e](quint64 now)
+		{
+			//qDebug() << now << "executing queued event: " << e;
+			executeEvent(e, now);
+		});
 	}
 }
 
@@ -86,7 +92,7 @@ void Scene::executeEvent(const MemEvent& e, qint64 now)
 	// stack?
 	if (stack_ && stack_->ownsAddress(e.addr))
 	{
-		stack_->addMemEvent(e);
+		stack_->addMemEvent(e, *animations_, now);
 	}
 	else
 	{
@@ -94,7 +100,7 @@ void Scene::executeEvent(const MemEvent& e, qint64 now)
 		{
 			if (block->ownsAddress(e.addr))
 			{
-				block->addMemEvent(e);
+				block->addMemEvent(e, *animations_, now);
 				return;
 			}
 		}
@@ -143,16 +149,20 @@ void Scene::processAnimations()
 {
 	qint64 now = QDateTime::currentMSecsSinceEpoch();
 	animations_->advance(now);
+	//qDebug() << now << "advancing";
 
 	// execute new events from Q
-	if (animations_->canAddNew(now) && !awaitingEvents_.empty())
+	while (animations_->canAddNew(now) && !awaitingEvents_.empty())
 	{
 		Event e = awaitingEvents_.dequeue();
 		e(now);
 	}
 
 	if (isReady())
+	{
+		timer_->stop();
 		emit ready();
+	}
 }
 
 QPointF Scene::findPlaceForBlock(const QSizeF& sz) const
