@@ -112,28 +112,30 @@ void Animations::advance(qint64 now)
 	}
 }
 
-void Animations::addMemLoad(MemCellItem* cell, int size, qint64 now)
+void Animations::addMemLoad(MemCellItem* cell, int size, qint64 now, bool continuation)
 {
-	assert(canAddNew(now));
+	assert(continuation || canAddNew(now));
 
 	//qDebug() << "load " << size  << "@" << cell->getAddr();
 
 	Animation* a = new MemLoad(cell, now, size);
 	cell->setZValue(0.5);
 	animations_.insert(now + 1000, a); // kill after 1 sec
-	blockedUntil_ = now + 100; // block subsequent animations for 100ms
+	if (!continuation)
+		blockedUntil_ = now + 100; // block subsequent animations for 100ms
 }
 
-void Animations::addMemStore(MemCellItem* cell, int size, qint64 now)
+void Animations::addMemStore(MemCellItem* cell, int size, qint64 now, bool continuation)
 {
-	assert(canAddNew(now));
+	assert(continuation || canAddNew(now));
 
 	//qDebug() << "store " << size  << "@" << cell->getAddr();
 
 	Animation* a = new MemStore(cell, now, size);
 	cell->setZValue(0.5);
 	animations_.insert(now + 1000, a); // kill after 1 sec
-	blockedUntil_ = now + 100; // block subsequent animations for 100ms
+	if (!continuation)
+		blockedUntil_ = now + 100; // block subsequent animations for 100ms
 }
 
 } // namespace Whiteboard

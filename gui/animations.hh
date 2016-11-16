@@ -25,8 +25,8 @@ public:
 	bool running() const { return !animations_.empty(); }
 
 	// creating animations
-	void addMemLoad(MemCellItem* cell, int size, qint64 now);
-	void addMemStore(MemCellItem* cell, int size, qint64 now);
+	void addMemLoad(MemCellItem* cell, int size, qint64 now, bool continuation);
+	void addMemStore(MemCellItem* cell, int size, qint64 now, bool continuation);
 
 private:
 

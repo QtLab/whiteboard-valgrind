@@ -46,17 +46,27 @@ void MemoryBlockItem::paint(QPainter* painter, const QStyleOptionGraphicsItem* o
 
 void MemoryBlockItem::addMemEvent(const MemEvent& e, Animations& animations, qint64 now)
 {
+	auto sizeLeft = e.size;
 	for(int i = 0; i < e.size; i++)
 	{
 		MemCellItem* cell = getCell(e.addr + i);
+		quint64 offset = (e.addr+i) - addr_;
+		int col = offset % 8;
 
-		// TODO detect non-aligned access
-		if (i == 0)
+		if (i == 0 || (col == 0 && sizeLeft > 0))
 		{
-			if (e.type == MemEvent::LOAD)
-				animations.addMemLoad(cell, e.size, now);
+			// detecting non-aligned access, splitting animation into two
+			int sizeToAnimate;
+			if (sizeLeft > (8-col))
+				sizeToAnimate = 8-col;
 			else
-				animations.addMemStore(cell, e.size, now);
+				sizeToAnimate = sizeLeft;
+			sizeLeft -= sizeToAnimate;
+
+			if (e.type == MemEvent::LOAD)
+				animations.addMemLoad(cell, sizeToAnimate, now, i > 0);
+			else
+				animations.addMemStore(cell, sizeToAnimate, now, i > 0);
 
 		}
 	}
