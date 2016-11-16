@@ -6,7 +6,7 @@
 
 namespace Whiteboard {
 
-class StackBlockItem;
+class MemoryBlockItem;
 
 class Scene : public QGraphicsScene
 {
@@ -23,7 +23,9 @@ public slots:
 
 private:
 
-	StackBlockItem* stack_ = nullptr;
+	MemoryBlockItem* stack_ = nullptr;
+
+	QMap<quint64, MemoryBlockItem*> heap_;
 
 };
 
