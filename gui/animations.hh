@@ -7,6 +7,7 @@ namespace Whiteboard {
 
 class MemCellItem;
 class Animation;
+class MemoryBlockItem;
 
 // Manages running animations
 class Animations : public QObject
@@ -27,6 +28,7 @@ public:
 	// creating animations
 	void addMemLoad(MemCellItem* cell, int size, qint64 now, bool continuation);
 	void addMemStore(MemCellItem* cell, int size, qint64 now, bool continuation);
+	void addFree(MemoryBlockItem* block, quint64 now);
 
 private:
 

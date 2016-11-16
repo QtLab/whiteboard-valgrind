@@ -22,7 +22,7 @@ Scene::Scene(QObject* p) : QGraphicsScene(p)
 	addItem(strut);
 
 	timer_ = new QTimer(this);
-	timer_->setInterval(100);
+	timer_->setInterval(50);
 	connect(timer_, &QTimer::timeout, this, &Scene::processAnimations);
 
 	animations_ = new Animations(this);
@@ -116,7 +116,7 @@ void Scene::executeEvent(const HeapEvent &e, qint64 now)
 {
 	if (e.type == HeapEvent::ALLOC)
 	{
-		qDebug() << " ALLOC " << e.addr;
+		//qDebug() << " ALLOC " << e.addr;
 
 		if (heap_.contains(e.addr))
 			throw std::runtime_error("Duplicate mem block");
@@ -134,11 +134,12 @@ void Scene::executeEvent(const HeapEvent &e, qint64 now)
 	}
 	else
 	{
-		qDebug() << " FREE " << e.addr;
+		//qDebug() << " FREE " << e.addr;
 		auto it = heap_.find(e.addr);
 		if (it == heap_.end())
 			throw std::runtime_error("Free on unknown block");
 
+		animations_->addFree(*it, now);
 		removeItem(*it);
 		delete *it;
 		heap_.erase(it);
