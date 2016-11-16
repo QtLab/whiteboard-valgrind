@@ -1,6 +1,7 @@
 #pragma once
 
 #include "mem_event.hh"
+#include "item_types.hh"
 
 #include <QGraphicsItem>
 
@@ -29,6 +30,8 @@ public:
 
 	QColor getColor() const { return color_; }
 	void setColor(const QColor& color);
+
+	virtual int type() const override { return int(ItemType::MEMORY_BLOCK); }
 
 private:
 

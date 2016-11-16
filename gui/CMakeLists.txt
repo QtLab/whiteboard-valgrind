@@ -28,6 +28,7 @@ add_executable(whiteborad_gui
 
 	memory_block_item.cc memory_block_item.hh
 	mem_cell_item.hh mem_cell_item.cc
+	item_types.hh
 )
 
 target_link_libraries(whiteborad_gui

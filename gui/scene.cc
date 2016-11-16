@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QGraphicsRectItem>
 
+#include <algorithm>
+
 namespace Whiteboard {
 
 static const quint64 STACK_MARGIN = 128; // added at the end of the stack
@@ -113,8 +115,11 @@ QPointF Scene::findPlaceForBlock(const QSizeF& sz) const
 			QPointF candidate(x, y);
 			QRectF rect(candidate, sz);
 			auto list = items(candidate, Qt::IntersectsItemBoundingRect);
-			// TODO ignore arrows and any other annotations
-			if (list.size() == 1)
+			// make sure there is no collision with another blocks
+			if (std::count_if(
+					list.begin(), list.end(),
+					[](const QGraphicsItem* i) { return i->type() == int(ItemType::MEMORY_BLOCK); })
+				== 0)
 			{
 				return candidate;
 			}
