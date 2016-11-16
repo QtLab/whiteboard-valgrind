@@ -23,6 +23,7 @@ signals:
 	// memory events
 	void stackChange(quint64 addr);
 	void memEvent(const MemEvent& ev);
+	void heapEvent(const HeapEvent& ev);
 
 	void canRun(bool);
 
@@ -39,6 +40,8 @@ private:
 	void onLineStep(const QJsonObject& obj);
 	void onMemStore(const QJsonObject& obj);
 	void onMemLoad(const QJsonObject& obj);
+	void onAllocation(const QJsonObject& obj);
+	void onFree(const QJsonObject& obj);
 
 	ProcessRunner* runner_ = nullptr;
 	bool running_ = false;

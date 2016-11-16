@@ -25,6 +25,7 @@ MainWindow::MainWindow(QWidget *p) :
 	connect(debugger_, SIGNAL(sourceLineReached(const QString&, int)), sourceView_, SLOT(showSource(const QString&, int)));
 	connect(debugger_, SIGNAL(stackChange(quint64)), scene_, SLOT(onStackChange(quint64)));
 	connect(debugger_, SIGNAL(memEvent(const MemEvent&)), scene_, SLOT(onMemEvent(const MemEvent&)));
+	connect(debugger_, SIGNAL(heapEvent(const HeapEvent&)), scene_, SLOT(onHeapEvent(const HeapEvent&)));
 
 
 	// debugger actions

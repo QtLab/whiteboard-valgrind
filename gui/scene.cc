@@ -3,6 +3,7 @@
 #include "memory_block_item.hh"
 
 #include <QDebug>
+#include <QGraphicsRectItem>
 
 namespace Whiteboard {
 
@@ -10,11 +11,15 @@ static const quint64 STACK_MARGIN = 128; // added at the end of the stack
 
 Scene::Scene(QObject* p) : QGraphicsScene(p)
 {
+	// inflate scene rect
+	QGraphicsRectItem* strut = new QGraphicsRectItem(QRectF(0, 0, 2048, 2048));
+	strut->show();
+	addItem(strut);
 }
 
 void Scene::setViewportSize(const QSize& sz)
 {
-	setSceneRect(0, 0, sz.width(), sz.height());
+	// more trouble than it's worth
 }
 
 void Scene::onStackChange(quint64 addr)
@@ -44,9 +49,44 @@ void Scene::onMemEvent(const MemEvent& e)
 	}
 	else
 	{
-		qDebug() << "unknonw memory event: " << e;
+		foreach(MemoryBlockItem* block, heap_)
+		{
+			if (block->ownsAddress(e.addr))
+			{
+				block->addMemEvent(e);
+				return;
+			}
+		}
+		qDebug() << "unknown memory event: " << e;
 	}
 
+}
+
+void Scene::onHeapEvent(const HeapEvent& e)
+{
+	if (e.type == HeapEvent::ALLOC)
+	{
+		if (heap_.contains(e.addr))
+			throw std::runtime_error("Duplicate mem block");
+
+		MemoryBlockItem* block = new MemoryBlockItem(e.addr, e.size);
+		block->setName(e.call);
+		block->setColor(Qt::cyan);
+		block->setPos(10 + (10+8*30)*(heap_.size()+1), 10);
+		addItem(block);
+
+		heap_.insert(e.addr, block);
+	}
+	else
+	{
+		auto it = heap_.find(e.addr);
+		if (it == heap_.end())
+			throw std::runtime_error("Free on unknown block");
+
+		removeItem(*it);
+		delete *it;
+		heap_.erase(it);
+	}
 }
 
 

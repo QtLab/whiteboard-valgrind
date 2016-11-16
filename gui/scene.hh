@@ -20,6 +20,7 @@ public slots:
 
 	void onStackChange(quint64 addr);
 	void onMemEvent(const MemEvent& e);
+	void onHeapEvent(const HeapEvent& e);
 
 private:
 

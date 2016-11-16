@@ -69,6 +69,10 @@ void Debugger::processNextRecord(const QJsonObject& obj)
 		onMemStore(obj);
 	else if (action == "mem-load")
 		onMemLoad(obj);
+	else if (action == "allocation")
+		onAllocation(obj);
+	else if (action == "free")
+		onFree(obj);
 
 	else
 	// TODO
@@ -106,6 +110,27 @@ void Debugger::onMemLoad(const QJsonObject& obj)
 	event.type = MemEvent::LOAD;
 
 	emit memEvent(event);
+}
+
+void Debugger::onAllocation(const QJsonObject& obj)
+{
+	HeapEvent event;
+	event.type = HeapEvent::ALLOC;
+	event.call = obj["type"].toString();
+	event.size = obj["size"].toInt();
+	event.addr = obj["addr"].toString().toLongLong();
+
+	emit heapEvent(event);
+}
+
+void Debugger::onFree(const QJsonObject& obj)
+{
+	HeapEvent event;
+	event.type = HeapEvent::FREE;
+	event.call = obj["type"].toString();
+	event.addr = obj["addr"].toString().toLongLong();
+
+	emit heapEvent(event);
 }
 
 } // namespace Whiteboard
