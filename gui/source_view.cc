@@ -5,6 +5,7 @@
 #include <QTextDocument>
 #include <QFile>
 #include <QTextBlock>
+#include <QSettings>
 
 #include <stdexcept>
 
@@ -15,6 +16,8 @@ SourceView::SourceView(QWidget* p) :
 	ui_(new Ui::SourceView)
 {
 	ui_->setupUi(this);
+
+	restoreGeometry(QSettings().value("source_view_geometry").toByteArray());
 }
 
 SourceView::~SourceView()
@@ -45,6 +48,14 @@ void SourceView::showSource(const QString& filePath, int line)
 	cursor.mergeBlockFormat(format);
 
 	ui_->textBrowser_->setDocument(doc);
+}
+
+void SourceView::closeEvent(QCloseEvent* e)
+{
+	QSettings settings;
+	settings.setValue("source_view_geometry", saveGeometry());
+
+	QWidget::closeEvent(e);
 }
 
 } // namespace Whiteboard

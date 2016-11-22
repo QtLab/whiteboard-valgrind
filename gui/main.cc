@@ -7,6 +7,8 @@
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
+	app.setOrganizationName("maciekgajewski");
+	app.setApplicationName("whiteboard");
 
 	Whiteboard::MainWindow mainWindow;
 

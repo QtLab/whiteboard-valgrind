@@ -6,6 +6,7 @@
 #include "source_view.hh"
 
 #include <QTimer>
+#include <QSettings>
 
 namespace Whiteboard {
 
@@ -34,6 +35,10 @@ MainWindow::MainWindow(QWidget *p) :
 	// ready
 	connect(debugger_, &Debugger::ready, this, &MainWindow::onReady);
 	connect(scene_, &Scene::ready, this, &MainWindow::onReady);
+
+	// geometry
+	QSettings settings;
+	restoreGeometry(settings.value("main_window_geometry").toByteArray());
 }
 
 MainWindow::~MainWindow()
@@ -60,6 +65,15 @@ void MainWindow::showEvent(QShowEvent* e)
 {
 	QMainWindow::showEvent(e);
 	scene_->setViewportSize(ui_->graphicsView->viewport()->size());
+}
+
+void MainWindow::closeEvent(QCloseEvent* e)
+{
+	QSettings settings;
+	settings.setValue("main_window_geometry", saveGeometry());
+	if (sourceView_)
+		sourceView_->close();
+	QMainWindow::closeEvent(e);
 }
 
 void MainWindow::onReady()

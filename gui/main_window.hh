@@ -28,6 +28,7 @@ private:
 
 	void resizeEvent(QResizeEvent* e) override;
 	void showEvent(QShowEvent* e) override;
+	void closeEvent(QCloseEvent* e) override;
 
 	void onReady();
 

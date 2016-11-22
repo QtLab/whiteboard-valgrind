@@ -20,6 +20,10 @@ public slots:
 
 	void showSource(const QString& file, int line);
 
+protected:
+
+	void closeEvent(QCloseEvent* e) override;
+
 private:
 	Ui::SourceView* ui_;
 };
